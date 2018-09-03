@@ -14,11 +14,11 @@ import (
 
 // Constants representing common multiples of byte sizes.
 const (
-	KB = 1024
-	MB = 1024 * KB
-	GB = 1024 * MB
-	TB = 1024 * GB
-	PB = 1024 * TB
+	KB Value = 1024
+	MB       = 1024 * KB
+	GB       = 1024 * MB
+	TB       = 1024 * GB
+	PB       = 1024 * TB
 )
 
 const maxInt = Value(^uint(0) >> 1)
@@ -43,15 +43,15 @@ func (v Value) MarshalYAML() (interface{}, error) {
 func (v Value) String() string {
 	switch {
 	case v%PB == 0:
-		return strconv.FormatUint(uint64(v)/PB, 10) + "PB"
+		return strconv.FormatUint(uint64(v/PB), 10) + "PB"
 	case v%TB == 0:
-		return strconv.FormatUint(uint64(v)/TB, 10) + "TB"
+		return strconv.FormatUint(uint64(v/TB), 10) + "TB"
 	case v%GB == 0:
-		return strconv.FormatUint(uint64(v)/GB, 10) + "GB"
+		return strconv.FormatUint(uint64(v/GB), 10) + "GB"
 	case v%MB == 0:
-		return strconv.FormatUint(uint64(v)/MB, 10) + "MB"
+		return strconv.FormatUint(uint64(v/MB), 10) + "MB"
 	case v%KB == 0:
-		return strconv.FormatUint(uint64(v)/KB, 10) + "KB"
+		return strconv.FormatUint(uint64(v/KB), 10) + "KB"
 	default:
 		return strconv.FormatUint(uint64(v), 10) + "B"
 	}
@@ -94,15 +94,15 @@ func Parse(s string) (Value, error) {
 	case "", "b", "byte", "bytes":
 		ok = true
 	case "k", "kb", "kilobyte", "kilobytes":
-		v, ok = overflow.MulU64(v, KB)
+		v, ok = overflow.MulU64(v, uint64(KB))
 	case "m", "mb", "megabyte", "megabytes":
-		v, ok = overflow.MulU64(v, MB)
+		v, ok = overflow.MulU64(v, uint64(MB))
 	case "g", "gb", "gigabyte", "gigabytes":
-		v, ok = overflow.MulU64(v, GB)
+		v, ok = overflow.MulU64(v, uint64(GB))
 	case "t", "tb", "terabyte", "terabytes":
-		v, ok = overflow.MulU64(v, TB)
+		v, ok = overflow.MulU64(v, uint64(TB))
 	case "p", "pb", "petabyte", "petabytes":
-		v, ok = overflow.MulU64(v, PB)
+		v, ok = overflow.MulU64(v, uint64(PB))
 	default:
 		return 0, fmt.Errorf("bytesize: unsupported unit %q specified in %q", unit, s)
 	}
