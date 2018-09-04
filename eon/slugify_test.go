@@ -1,4 +1,4 @@
-package dion
+package eon
 
 import (
 	"testing"

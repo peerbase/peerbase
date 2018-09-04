@@ -1,4 +1,4 @@
-package dion
+package eon
 
 func slugify(s string) []byte {
 	var (
