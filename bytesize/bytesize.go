@@ -12,13 +12,15 @@ import (
 	"peerbase.net/go/overflow"
 )
 
-// Constants representing common multiples of byte sizes.
+// Constants representing common byte sizes.
 const (
-	KB Value = 1024
-	MB       = 1024 * KB
-	GB       = 1024 * MB
-	TB       = 1024 * GB
-	PB       = 1024 * TB
+	B    Value = 1
+	Byte       = 1
+	KB         = 1024
+	MB         = 1024 * KB
+	GB         = 1024 * MB
+	TB         = 1024 * GB
+	PB         = 1024 * TB
 )
 
 const maxInt = Value(^uint(0) >> 1)
@@ -30,14 +32,9 @@ type Value uint64
 // not, returns the value as an int.
 func (v Value) Int() (int, error) {
 	if v > maxInt {
-		return 0, fmt.Errorf("bytesize: value %d overflows platform int", v)
+		return 0, fmt.Errorf("bytesize: value %d (%s) overflows platform int", v, v.String())
 	}
 	return int(v), nil
-}
-
-// MarshalYAML implements the YAML encoding interface.
-func (v Value) MarshalYAML() (interface{}, error) {
-	return v.String(), nil
 }
 
 func (v Value) String() string {
@@ -57,21 +54,9 @@ func (v Value) String() string {
 	}
 }
 
-// UnmarshalYAML implements the YAML decoding interface.
-func (v *Value) UnmarshalYAML(unmarshal func(interface{}) error) error {
-	raw := ""
-	err := unmarshal(&raw)
-	if err != nil {
-		return err
-	}
-	*v, err = Parse(raw)
-	return err
-}
-
 // Parse tries to parse a byte size Value from the given string. A byte size
 // string is a sequence of decimal numbers and a unit suffix, e.g. "20GB",
-// "1024KB", "100M", etc. Valid units are "B", "K", "KB", "M", "MB", "G", "GB",
-// "T", "TB", "P", and "PB".
+// "1024KB", "100M", etc. Valid units are "B", "KB", "MB", "GB", "TB", and "PB".
 func Parse(s string) (Value, error) {
 	var (
 		err  error
@@ -86,22 +71,22 @@ func Parse(s string) (Value, error) {
 			if err != nil {
 				return 0, fmt.Errorf("bytesize: unable to parse the decimal part of %q: %s", s, err)
 			}
-			unit = strings.TrimSpace(s[i+1:])
+			unit = s[i+1:]
 			break
 		}
 	}
 	switch strings.ToLower(unit) {
-	case "", "b", "byte", "bytes":
+	case "", "b":
 		ok = true
-	case "k", "kb", "kilobyte", "kilobytes":
+	case "kb":
 		v, ok = overflow.MulU64(v, uint64(KB))
-	case "m", "mb", "megabyte", "megabytes":
+	case "mb":
 		v, ok = overflow.MulU64(v, uint64(MB))
-	case "g", "gb", "gigabyte", "gigabytes":
+	case "gb":
 		v, ok = overflow.MulU64(v, uint64(GB))
-	case "t", "tb", "terabyte", "terabytes":
+	case "tb":
 		v, ok = overflow.MulU64(v, uint64(TB))
-	case "p", "pb", "petabyte", "petabytes":
+	case "pb":
 		v, ok = overflow.MulU64(v, uint64(PB))
 	default:
 		return 0, fmt.Errorf("bytesize: unsupported unit %q specified in %q", unit, s)
