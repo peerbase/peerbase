@@ -28,8 +28,8 @@ const maxInt = Value(^uint(0) >> 1)
 // Value represents a byte size value.
 type Value uint64
 
-// Int checks if the byte size value would overflow the platform int and, if
-// not, returns the value as an int.
+// Int checks if the value would overflow the platform int and, if not, returns
+// the value as an int.
 func (v Value) Int() (int, error) {
 	if v > maxInt {
 		return 0, fmt.Errorf("bytesize: value %d (%s) overflows platform int", v, v.String())
@@ -56,7 +56,8 @@ func (v Value) String() string {
 
 // Parse tries to parse a byte size Value from the given string. A byte size
 // string is a sequence of decimal numbers and a unit suffix, e.g. "20GB",
-// "1024KB", "100M", etc. Valid units are "B", "KB", "MB", "GB", "TB", and "PB".
+// "1024KB", "100MB", etc. Valid units are "B", "KB", "MB", "GB", "TB", and
+// "PB". If no unit is specified, then the value is assumed to be in bytes.
 func Parse(s string) (Value, error) {
 	var (
 		err  error
