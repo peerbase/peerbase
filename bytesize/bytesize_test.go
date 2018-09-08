@@ -21,7 +21,7 @@ func TestInt(t *testing.T) {
 		{32 * TB, 35184372088832, false},
 		{32 * PB, 36028797018963968, false},
 		{MB + 1234, 1049810, false},
-		{15360 * PB, 0, false},
+		{15360 * PB, 0, true},
 	} {
 		v, err := elem.v.Int()
 		if err != nil {
