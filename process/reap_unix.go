@@ -11,13 +11,18 @@ import (
 	"syscall"
 )
 
+var (
+	osGetpid = os.Getpid
+	testMode = false
+)
+
 // ReapOrphans listens out for SIGCHLD and reaps orphaned processes.
 //
 // If the current process is not PID 1, then on certain platforms (currently
 // only Linux), it registers the process as a subreaper so as to be able to reap
 // orphans. On other platforms, the function exits immediately and does nothing.
 func ReapOrphans() {
-	if os.Getpid() != 1 && !SetAsSubreaper() {
+	if osGetpid() != 1 && !SetAsSubreaper() {
 		return
 	}
 	sigs := make(chan struct{}, 100)
@@ -25,13 +30,13 @@ func ReapOrphans() {
 	status := syscall.WaitStatus(0)
 	for range sigs {
 		for {
-			pid, err := syscall.Wait4(-1, &status, 0, nil)
-			for err == syscall.EINTR {
-				pid, err = syscall.Wait4(pid, &status, 0, nil)
-			}
+			_, err := syscall.Wait4(-1, &status, 0, nil)
 			if err == syscall.ECHILD {
 				break
 			}
+		}
+		if testMode {
+			break
 		}
 	}
 }
@@ -53,5 +58,11 @@ func notifySIGCHLD(sigs chan struct{}) {
 		case sigs <- struct{}{}:
 		default:
 		}
+		if testMode {
+			break
+		}
+	}
+	if testMode {
+		signal.Stop(notifier)
 	}
 }

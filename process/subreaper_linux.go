@@ -7,7 +7,7 @@ import (
 	"golang.org/x/sys/unix"
 )
 
-func subreaper() bool {
+var subreaper = func() bool {
 	unix.Prctl(unix.PR_SET_CHILD_SUBREAPER, uintptr(1), 0, 0, 0)
 	return true
 }

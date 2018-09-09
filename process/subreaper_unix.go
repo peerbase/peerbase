@@ -5,6 +5,6 @@
 
 package process
 
-func subreaper() bool {
+var subreaper = func() bool {
 	return false
 }
