@@ -37,6 +37,13 @@ func (v Value) Int() (int, error) {
 	return int(v), nil
 }
 
+// String produces a human-readable representation of the byte size value as a
+// sequence of decimal numbers followed by a unit suffix. Where possible, the
+// unit yielding the smallest possible string representation will be chosen.
+//
+// Valid units are "B", "KB", "MB", "GB", "TB", and "PB", with "B" being the
+// default where the byte size value is not an exact multiple of any of the
+// larger units.
 func (v Value) String() string {
 	switch {
 	case v%PB == 0:
@@ -54,7 +61,7 @@ func (v Value) String() string {
 	}
 }
 
-// Parse tries to parse a byte size Value from the given string. A byte size
+// Parse tries to parse a byte size value from the given string. A byte size
 // string is a sequence of decimal numbers and a unit suffix, e.g. "20GB",
 // "1024KB", "100MB", etc. Valid units are "B", "KB", "MB", "GB", "TB", and
 // "PB". If no unit is specified, then the value is assumed to be in bytes.
