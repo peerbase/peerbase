@@ -2,14 +2,14 @@
 
 In the spirit of contributing to the Public Domain, to the full extent possible
 under law, the Peerbase Authors ("The Authors"), as specified in the
-`AUTHORS.yaml` file, have waived all copyright, patent and related or
+[`AUTHORS.yaml`] file, have waived all copyright, patent and related or
 neighboring rights to their Contributions to Peerbase ("The Work").
 
 This does not apply to works authored by third parties ("Third Party Works")
 which come with their own copyright and licensing terms. These terms may be
-defined in explicit files as specified within an optional `THIRDPARTY.yaml` file
-or specified as part of the contents of licensed files. We recommend you read
-them as their terms may differ from the terms below.
+defined in explicit files as specified within an optional [`THIRDPARTY.yaml`]
+file or specified as part of the contents of licensed files. We recommend you
+read them as their terms may differ from the terms below.
 
 With the exception of Third Party Works, all files in this repository are
 covered by this UNLICENSE. If desired, an informative header like the following
@@ -176,5 +176,7 @@ filed.
 - This UNLICENSE is seen as a mere transitional requirement until international
   law adapts to the post intellectual property reality.
 
+[`authors.yaml`]: AUTHORS.yaml
+[`thirdparty.yaml`]: THIRDPARTY.yaml
 [creative commons cc0 1.0 universal]: https://creativecommons.org/publicdomain/zero/1.0/legalcode
 [patent grant]: https://github.com/golang/go/blob/master/PATENTS
