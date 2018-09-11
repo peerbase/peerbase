@@ -51,7 +51,7 @@ func TestCreatePIDFile(t *testing.T) {
 	fpath = filepath.Join(tmp+"-nonexistent-directory", "test.pid")
 	err = CreatePIDFile(fpath)
 	if err == nil {
-		t.Fatalf("Expected an error when creating PID file in a non-existent directoy")
+		t.Fatalf("Expected an error when creating PID file in a non-existent directory")
 	}
 }
 
