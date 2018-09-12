@@ -9,9 +9,9 @@ os:
 dist: trusty
 sudo: false
 
-install: GO111MODULE=on go mod download
-script:
-  - GO111MODULE=on go test -coverprofile cover.profile ./...
-
 git:
   submodules: false
+
+install: GO111MODULE=on go mod download
+script:
+  - GO111MODULE=on go test -coverprofile cover.profile -v ./...
