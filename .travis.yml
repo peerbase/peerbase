@@ -1,0 +1,17 @@
+language: go
+go:
+  - "1.11"
+
+os:
+  - linux
+  - osx
+
+dist: trusty
+sudo: false
+
+install: GO111MODULE=on go mod download
+script:
+  - GO111MODULE=on go test -coverprofile cover.profile ./...
+
+git:
+  submodules: false
