@@ -10,7 +10,6 @@ import (
 	"os/exec"
 	"syscall"
 	"testing"
-	"time"
 )
 
 func TestReapOrphans(t *testing.T) {
@@ -23,11 +22,9 @@ func TestReapOrphans(t *testing.T) {
 	if err := cmd.Start(); err != nil {
 		t.Fatalf("Unexpected error when trying to run `sleep 100`: %s", err)
 	}
-	go func() {
-		time.Sleep(time.Second)
-		syscall.Kill(cmd.Process.Pid, syscall.SIGTERM)
-	}()
-	ReapOrphans()
+	syscall.Kill(cmd.Process.Pid, syscall.SIGTERM)
+	go ReapOrphans()
+	<-testSig
 	// Then, do another run to exercise the path for exiting early.
 	osGetpid = os.Getpid
 	ori := subreaper
@@ -36,9 +33,7 @@ func TestReapOrphans(t *testing.T) {
 		ori()
 		return false
 	}
-	go func() {
-		time.Sleep(time.Second)
-		syscall.Kill(syscall.Getpid(), syscall.SIGCHLD)
-	}()
-	ReapOrphans()
+	syscall.Kill(syscall.Getpid(), syscall.SIGCHLD)
+	go ReapOrphans()
+	<-testSig
 }

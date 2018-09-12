@@ -13,7 +13,6 @@ import (
 
 var (
 	osGetpid = os.Getpid
-	testMode = false
 )
 
 // ReapOrphans listens out for SIGCHLD and reaps orphaned processes.
@@ -36,6 +35,7 @@ func ReapOrphans() {
 			}
 		}
 		if testMode {
+			testSig <- struct{}{}
 			break
 		}
 	}

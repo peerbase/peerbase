@@ -11,7 +11,6 @@ import (
 	"strconv"
 	"syscall"
 	"testing"
-	"time"
 
 	"peerbase.net/go/mock/osexit"
 )
@@ -55,40 +54,8 @@ func TestCreatePIDFile(t *testing.T) {
 	}
 }
 
-func TestExit(t *testing.T) {
-	ResetHandlers()
-	called := false
-	SetExitHandler(func() {
-		called = true
-	})
-	osExit = osexit.Set()
-	resetExit()
-	Exit(7)
-	if !osexit.Called() {
-		t.Fatalf("Exit did not call os.Exit")
-	}
-	status := osexit.Status()
-	if status != 7 {
-		t.Fatalf("Exit did not set the right status code: expected 7; got %d", status)
-	}
-	if !called {
-		t.Fatalf("Exit handler was not called on calling Exit")
-	}
-	osexit.Reset()
-	go func() {
-		Exit(8)
-	}()
-	select {
-	case wait <- struct{}{}:
-	case <-time.After(time.Second):
-		t.Fatalf("Second call to Exit did not hang on wait within 1s")
-	}
-	if osexit.Called() {
-		t.Fatalf("Second call to Exit called os.Exit")
-	}
-}
-
 func TestDisableDefaultExit(t *testing.T) {
+	testMode = true
 	ResetHandlers()
 	called := false
 	SetExitHandler(func() {
@@ -113,6 +80,37 @@ func TestDisableDefaultExit(t *testing.T) {
 	}
 	if !called {
 		t.Fatalf("Exit handler not called on the second SIGTERM")
+	}
+}
+
+func TestExit(t *testing.T) {
+	testMode = true
+	ResetHandlers()
+	called := false
+	SetExitHandler(func() {
+		called = true
+	})
+	osExit = osexit.Set()
+	resetExit()
+	Exit(7)
+	if !osexit.Called() {
+		t.Fatalf("Exit did not call os.Exit")
+	}
+	status := osexit.Status()
+	if status != 7 {
+		t.Fatalf("Exit did not set the right status code: expected 7; got %d", status)
+	}
+	if !called {
+		t.Fatalf("Exit handler was not called on calling Exit")
+	}
+	osexit.Reset()
+	go func() {
+		Exit(8)
+	}()
+	<-testSig
+	wait <- struct{}{}
+	if osexit.Called() {
+		t.Fatalf("Second call to Exit called os.Exit")
 	}
 }
 
@@ -166,6 +164,7 @@ func TestLock(t *testing.T) {
 }
 
 func TestSignalHandler(t *testing.T) {
+	testMode = true
 	ResetHandlers()
 	called := false
 	SetSignalHandler(syscall.SIGHUP, func() {
@@ -193,12 +192,11 @@ func resetExit() {
 
 func send(sig syscall.Signal) {
 	syscall.Kill(syscall.Getpid(), sig)
-	// TODO(tav): Figure out a way of waiting for the signal to be delivered in
-	// a less brittle.
-	time.Sleep(time.Second)
+	<-testSig
 }
 
 func setup(t *testing.T) string {
+	testMode = true
 	resetExit()
 	ResetHandlers()
 	tmp, err := ioutil.TempDir("", "peerbase-process")

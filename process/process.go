@@ -22,6 +22,8 @@ var (
 var (
 	osExit   = os.Exit
 	registry = make(map[os.Signal][]func())
+	testMode = false
+	testSig  = make(chan struct{}, 10)
 	wait     = make(chan struct{})
 )
 
@@ -69,6 +71,9 @@ func Exit(code int) {
 	mu.Lock()
 	if exiting {
 		mu.Unlock()
+		if testMode {
+			testSig <- struct{}{}
+		}
 		<-wait
 		return
 	}
@@ -148,23 +153,28 @@ func SetSignalHandler(signal os.Signal, handler func()) {
 func handleSignals() {
 	notifier := make(chan os.Signal, 100)
 	signal.Notify(notifier)
-	for sig := range notifier {
-		mu.RLock()
-		handlers, found := registry[sig]
-		mu.RUnlock()
-		if found {
-			for _, handler := range handlers {
-				handler()
+	go func() {
+		for sig := range notifier {
+			mu.RLock()
+			handlers, found := registry[sig]
+			mu.RUnlock()
+			if found {
+				for _, handler := range handlers {
+					handler()
+				}
+			}
+			mu.RLock()
+			if !exitDisabled {
+				if sig == syscall.SIGTERM || sig == os.Interrupt {
+					osExit(1)
+				}
+			}
+			mu.RUnlock()
+			if testMode {
+				testSig <- struct{}{}
 			}
 		}
-		mu.RLock()
-		if !exitDisabled {
-			if sig == syscall.SIGTERM || sig == os.Interrupt {
-				osExit(1)
-			}
-		}
-		mu.RUnlock()
-	}
+	}()
 }
 
 func prepend(xs []func(), handler func()) []func() {
@@ -172,5 +182,5 @@ func prepend(xs []func(), handler func()) []func() {
 }
 
 func init() {
-	go handleSignals()
+	handleSignals()
 }
