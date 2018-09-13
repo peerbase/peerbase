@@ -1,3 +1,6 @@
+# Public Domain (-) 2018-present, The Peerbase Authors.
+# See the Peerbase UNLICENSE file for details.
+
 language: go
 go:
   - "1.11"
@@ -10,8 +13,12 @@ dist: trusty
 sudo: false
 
 git:
+  quiet: true
   submodules: false
 
-install: GO111MODULE=on go mod download
+install: true
 script:
-  - GO111MODULE=on go test -coverprofile cover.profile -v ./...
+  - ./environ/ci
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
