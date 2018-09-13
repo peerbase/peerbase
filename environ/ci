@@ -1,0 +1,22 @@
+#! /usr/bin/env bash
+
+# Public Domain (-) 2018-present, The Peerbase Authors.
+# See the Peerbase UNLICENSE file for details.
+
+set -e -o pipefail
+
+counter=0
+
+function stage {
+  ((counter++)) || true
+  printf "\n\033[34;1m➡  $1  \033[90m[stage $counter] [running ${SECONDS}s]\033[0m\n\n"
+}
+
+
+GO111MODULE=on
+
+stage "Download Go Dependencies"
+go mod download
+
+stage "Run Go Tests"
+go test -coverprofile coverage.txt -v ./...
