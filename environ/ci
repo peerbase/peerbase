@@ -13,7 +13,7 @@ function stage {
 }
 
 
-GO111MODULE=on
+export GO111MODULE=on
 
 stage "Download Go Dependencies"
 go mod download
