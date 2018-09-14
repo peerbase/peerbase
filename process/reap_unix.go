@@ -24,10 +24,10 @@ func ReapOrphans() {
 	if osGetpid() != 1 && !SetAsSubreaper() {
 		return
 	}
-	sigs := make(chan struct{}, 100)
-	go notifySIGCHLD(sigs)
+	notifier := make(chan os.Signal, 4096)
+	signal.Notify(notifier, syscall.SIGCHLD)
 	status := syscall.WaitStatus(0)
-	for range sigs {
+	for range notifier {
 		for {
 			_, err := syscall.Wait4(-1, &status, 0, nil)
 			if err == syscall.ECHILD {
@@ -39,6 +39,9 @@ func ReapOrphans() {
 			break
 		}
 	}
+	if testMode {
+		signal.Stop(notifier)
+	}
 }
 
 // SetAsSubreaper tries to set the current process as a subreaper on the
@@ -46,23 +49,4 @@ func ReapOrphans() {
 // successful or not.
 func SetAsSubreaper() bool {
 	return subreaper()
-}
-
-// We use an intermediary channel to handle SIGCHLD so that we don't block
-// whilst reaping.
-func notifySIGCHLD(sigs chan struct{}) {
-	notifier := make(chan os.Signal, 100)
-	signal.Notify(notifier, syscall.SIGCHLD)
-	for range notifier {
-		select {
-		case sigs <- struct{}{}:
-		default:
-		}
-		if testMode {
-			break
-		}
-	}
-	if testMode {
-		signal.Stop(notifier)
-	}
 }
