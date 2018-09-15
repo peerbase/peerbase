@@ -20,7 +20,7 @@ var (
 // Marshaler is the interface implemented by types that can marshal themselves
 // into valid EON.
 type Marshaler interface {
-	MarshalEON() ([]byte, error)
+	MarshalEON(scratch []byte, opts EncodeOpts) ([]byte, error)
 }
 
 // Unmarshaler is the interface implemented by types that can unmarshal an EON
