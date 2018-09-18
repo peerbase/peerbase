@@ -16,9 +16,12 @@
 //   within a top-level `THIRDPARTY.eon` metadata file.
 
 tav {
-  email = "tav@espians.com"
-  github = "tav"
-  location = "London, UK"
-  name = "tav"
-  twitter = "tav"
+	name = "tav"
+	email = "tav@espians.com"
+	github = "tav"
+	twitter = "tav"
+	location {
+		area = "London"
+		country = "GB"
+	}
 }
