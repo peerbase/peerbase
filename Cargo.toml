@@ -1,0 +1,25 @@
+[package]
+name = "peerbase"
+version = "0.0.1"
+authors = ["Peerbase Authors <team@peerbase.net>"]
+description = "Building a foundation for Web 4.0"
+homepage = "https://peerbase.net"
+license-file = "UNLICENSE.md"
+readme = "README.md"
+repository = "https://github.com/espians/peerbase"
+
+[badges]
+codecov = {repository = "espians/peerbase"}
+travis-ci = {repository = "espians/peerbase"}
+
+[[bin]]
+name = "peerbase"
+path = "cmd/peerbase/peerbase.rs"
+
+[dependencies]
+eon = {path = "eon"}
+
+[workspace]
+members = [
+    "eon",
+]
